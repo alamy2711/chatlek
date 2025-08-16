@@ -1,9 +1,8 @@
 import { getCountryName } from '../utils/countriesUtils.js';
 
-export const userResource = (user) => ({
+export const userListResource = (user) => ({
     id: user._id,
     fullName: user.fullName,
-    email: user.email,
     avatar: user.avatar,
     gender: user.gender,
     age: user.age,
@@ -11,7 +10,4 @@ export const userResource = (user) => ({
         code: user.country,
         name: getCountryName(user.country),
     },
-    role: user.role,
-    createdAt: user.createdAt,
-    updatedAt: user.updatedAt,
 });

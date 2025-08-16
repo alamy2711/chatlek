@@ -8,6 +8,6 @@ export const validateMessage = [
 
     body('media')
         .optional()
-        .isURL().withMessage('Media must be a valid image URL')
-        .matches(/\.(jpg|jpeg|png|webp)$/i).withMessage('Media must be a valid image file (jpg, jpeg, png, webp)'),
+        // .isURL().withMessage('Media must be a valid image URL')
+        // .matches(/\.(jpg|jpeg|png|webp)$/i).withMessage('Media must be a valid image file (jpg, jpeg, png, webp)'),
 ];

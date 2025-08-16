@@ -1,6 +1,9 @@
 import cloudinary from '../lib/cloudinary.js';
 import Conversation from '../models/conversation.model.js';
 import Message from '../models/message.model.js';
+import {io} from '../lib/socket.js';
+import { getReceiverSocketId, userSocketMap } from '../sockets/userSocketMap.js';
+
 
 export const getMessagesByConversation = async (req, res) => {
     try {
@@ -82,6 +85,9 @@ export const sendMessage = async (req, res) => {
         await conversation.save();
 
         // TODO: Real-time functionality using Socket.IO
+        const receiverId = conversation.participants.find((participant) => participant.toString() !== authUser._id.toString()).toString();
+        const receiverSocketId = getReceiverSocketId(receiverId);
+        io.to(receiverSocketId).emit('new-message', newMessage);
 
         res.status(201).json({
             success: true,

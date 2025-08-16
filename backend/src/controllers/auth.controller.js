@@ -9,7 +9,11 @@ export const signup = async (req, res) => {
         // check if user already exists
         const user = await User.findOne({ email });
         if (user) {
-            return res.status(400).json({ message: 'User already exists' });
+            return res.status(400).json({
+                success: false,
+                message: 'User already exists',
+                errors: [{ field: 'email', message: 'Email is already in use' }],
+            });
         }
 
         // crypt password
@@ -54,6 +58,10 @@ export const login = async (req, res) => {
             return res.status(400).json({
                 success: false,
                 message: 'Invalid credentials',
+                errors: [
+                    { field: 'password', message: 'Invalid credentials' },
+                    { field: 'email', message: 'Invalid credentials' },
+                ],
             });
         }
 
@@ -63,6 +71,10 @@ export const login = async (req, res) => {
             return res.status(400).json({
                 success: false,
                 message: 'Invalid credentials',
+                errors: [
+                    { field: 'password', message: 'Invalid credentials' },
+                    { field: 'email', message: 'Invalid credentials' },
+                ],
             });
         }
 
