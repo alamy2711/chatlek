@@ -1,5 +1,6 @@
 import { Filter, Search, X } from "lucide-react";
 import { useEffect, useState } from "react";
+import { useAuthStore } from "../../stores/useAuthStore";
 import { useChatStore } from "../../stores/useChatStore";
 
 // Components
@@ -10,13 +11,19 @@ const UsersList = ({ onCloseSidebar }) => {
     const users = useChatStore((state) => state.users);
     const fetchUsers = useChatStore((state) => state.fetchUsers);
     const selectedUser = useChatStore((state) => state.selectedUser);
-    const selectUser = useChatStore((state) => state.selectUser);
+    const setSelectedUser = useChatStore((state) => state.setSelectedUser);
     const usersLoading = useChatStore((state) => state.usersLoading);
     const startConversation = useChatStore((state) => state.startConversation);
     const onlineUsersIds = useChatStore((state) => state.onlineUsers);
+    const subscribeToUsers = useAuthStore((state) => state.subscribeToUsers);
 
     useEffect(() => {
         fetchUsers();
+    }, []);
+
+    useEffect(() => {
+        if (!users) return;
+        subscribeToUsers();
     }, []);
 
     const [searchQuery, setSearchQuery] = useState("");
@@ -31,8 +38,12 @@ const UsersList = ({ onCloseSidebar }) => {
         return matchesSearch && matchesGender;
     });
 
-    const onlineUsers = filteredUsers.filter((user) => onlineUsersIds.includes(user.id));
-    const offlineUsers = filteredUsers.filter((user) => !onlineUsersIds.includes(user.id));
+    const onlineUsers = filteredUsers.filter((user) =>
+        onlineUsersIds.includes(user.id),
+    );
+    const offlineUsers = filteredUsers.filter(
+        (user) => !onlineUsersIds.includes(user.id),
+    );
 
     if (usersLoading) {
         return (
@@ -113,7 +124,7 @@ const UsersList = ({ onCloseSidebar }) => {
                                 user={user}
                                 isSelected={selectedUser?.id === user.id}
                                 onClick={() => {
-                                    selectUser(user);
+                                    setSelectedUser(user);
                                     if (selectedUser?.id !== user.id)
                                         startConversation(user.id);
                                     onCloseSidebar();
@@ -136,7 +147,7 @@ const UsersList = ({ onCloseSidebar }) => {
                                 user={user}
                                 isSelected={selectedUser?.id === user.id}
                                 onClick={() => {
-                                    selectUser(user);
+                                    setSelectedUser(user);
                                     if (selectedUser?.id !== user.id)
                                         startConversation(user.id);
                                     onCloseSidebar();

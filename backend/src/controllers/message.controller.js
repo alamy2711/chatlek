@@ -84,7 +84,7 @@ export const sendMessage = async (req, res) => {
         conversation.lastMessage = newMessage._id;
         await conversation.save();
 
-        // TODO: Real-time functionality using Socket.IO
+        // Real-time functionality using Socket.IO
         const receiverId = conversation.participants.find((participant) => participant.toString() !== authUser._id.toString()).toString();
         const receiverSocketId = getReceiverSocketId(receiverId);
         io.to(receiverSocketId).emit('new-message', newMessage);

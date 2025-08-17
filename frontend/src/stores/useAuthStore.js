@@ -3,7 +3,6 @@ import { io } from "socket.io-client";
 import { create } from "zustand";
 import axiosClient from "../lib/axiosClient";
 import { useChatStore } from "./useChatStore";
-import { use } from "react";
 
 export const useAuthStore = create((set, get) => ({
     authUser: null,
@@ -11,7 +10,8 @@ export const useAuthStore = create((set, get) => ({
     authSocket: null,
 
     // Loading states
-    authUserLoading: true,
+    authUserLoading: false,
+    logoutLoading: false,
 
     // Setters
     setAuthUser: (user) => set({ authUser: user }),
@@ -26,11 +26,13 @@ export const useAuthStore = create((set, get) => ({
 
     // Actions
     fetchAuthUser: async () => {
-        const { token, setToken } = get();
+        const { token, setToken, logoutLoading } = get();
         if (!token) {
             set({ authUser: null, authUserLoading: false });
             return;
         }
+
+        if (logoutLoading) return;
 
         // If token exists, fetch the authenticated user
         set({ authUserLoading: true });
@@ -40,7 +42,6 @@ export const useAuthStore = create((set, get) => ({
             get().connectSocket(); // Connect socket
         } catch (error) {
             if (error.response?.status === 401) {
-                console.log("object");
                 // Not logged in — expected
                 setToken(null);
                 set({ authUser: null, authUserLoading: false });
@@ -52,21 +53,21 @@ export const useAuthStore = create((set, get) => ({
         }
     },
     logout: async () => {
-        set({ authUserLoading: true });
+        const { disconnectSocket } = get();
+
+        set({ authUserLoading: true, logoutLoading: true });
         try {
             await axiosClient.post("/auth/logout");
-            get().setToken(null); // Clear token from state and localStorage
-            set({ authUser: null, token: null });
+            set({ token: null, authUser: null });
             toast("Logged out successfully");
-            get().disconnectSocket(); // Disconnect socket
+            disconnectSocket();
         } catch (error) {
             console.error("Failed to logout:", error);
             toast.error("Failed to logout, please try again");
         } finally {
-            set({ authUserLoading: false });
+            set({ authUserLoading: false, logoutLoading: false });
         }
     },
-
 
     // Socket actions
     connectSocket: () => {
@@ -78,7 +79,9 @@ export const useAuthStore = create((set, get) => ({
         if (!token || !authUser || authSocket?.connected) return;
 
         const socket = io(
-            import.meta.env.VITE_SOCKET_BASE_URL || "http://localhost:5001",
+            import.meta.env.MODE === "development"
+                ? import.meta.env.VITE_API_BASE_URL
+                : `/`,
             {
                 query: { userId: authUser.id },
             },
@@ -87,12 +90,42 @@ export const useAuthStore = create((set, get) => ({
 
         socket.on("online-users", (onlineUsersIds) => {
             setOnlineUsers(onlineUsersIds);
-
         });
     },
     disconnectSocket: () => {
         const authSocket = get().authSocket;
+        const {
+            setConversation,
+            setMessages,
+            setSelectedUser,
+            unsubscribeFromMessages,
+        } = useChatStore.getState();
+
         if (authSocket?.connected) authSocket.disconnect();
+
+        setConversation(null);
+        setMessages([]);
+        setSelectedUser(null);
+        unsubscribeFromMessages();
+    },
+
+    subscribeToUsers: () => {
+        const authSocket = get().authSocket;
+        const { setUsers, users } = useChatStore.getState();
+
+        if (!authSocket) return;
+
+        authSocket.on("new-user", (newUser) => {
+            if (users.some((user) => user.id === newUser.id)) return;
+
+            setUsers((prevUsers) => [...prevUsers, newUser]);
+        });
+
+        authSocket.on("user-deleted", (userId) => {
+            setUsers((prevUsers) =>
+                prevUsers.filter((user) => user.id !== userId),
+            );
+        });
     },
 }));
 

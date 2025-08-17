@@ -12,6 +12,21 @@ export const useChatStore = create((set, get) => ({
     unreadMessages: {},
 
     // Setters
+    setUsers: (updater) =>
+        set((state) => {
+            const newUsers =
+                typeof updater === "function" ? updater(state.users) : updater;
+            // remove duplicates by id
+            const uniqueUsers = newUsers.filter(
+                (u, i, self) => i === self.findIndex((x) => x.id === u.id),
+            );
+            return { users: uniqueUsers };
+        }),
+    setConversation: (conversation) => set({ conversation }),
+    setMessages: (messages) => set({ messages }),
+    setSelectedUser: (user) => {
+        set({ selectedUser: user });
+    },
     setOnlineUsers: (onlineUsersIds) => set({ onlineUsers: onlineUsersIds }),
     setUnreadMessages: (unreadMessages) => set({ unreadMessages }),
 
@@ -19,11 +34,6 @@ export const useChatStore = create((set, get) => ({
     usersLoading: true,
     conversationLoading: false,
     messagesLoading: true,
-
-    // Setters
-    selectUser: (user) => {
-        set({ selectedUser: user });
-    },
 
     // Actions
     fetchUsers: async () => {
@@ -88,11 +98,13 @@ export const useChatStore = create((set, get) => ({
     },
 
     subscribeToMessages: () => {
-        const selectedUser = get().selectedUser;
+        
         const authUser = useAuthStore.getState().authUser;
         const authSocket = useAuthStore.getState().authSocket;
 
         authSocket.on("new-message", (newMessage) => {
+            const selectedUser = get().selectedUser;
+
             // Append message if it’s from the currently selected conversation
             if (newMessage.sender === selectedUser?.id) {
                 set((state) => ({ messages: [newMessage, ...state.messages] }));

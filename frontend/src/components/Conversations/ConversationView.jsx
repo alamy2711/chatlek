@@ -37,20 +37,13 @@ const ConversationView = ({ onOpenSidebar }) => {
             ...unreadMessages,
             [selectedUser.id]: 0,
         });
-
-        // subscribeToMessages();
-
-        // return () => {
-        //     unsubscribeFromMessages();
-        // };
     }, [
-        selectedUser.id,
+        selectedUser?.id,
         conversation,
         fetchMessages,
         subscribeToMessages,
         unsubscribeFromMessages,
     ]);
-
 
     //
     const [showActions, setShowActions] = useState(false);
@@ -115,7 +108,7 @@ const ConversationView = ({ onOpenSidebar }) => {
                         </button>
                         <div className="relative">
                             <div
-                                className={`overflow-hidden rounded-full ring-3 ${selectedUser.gender === "male" ? "ring-blue-500" : "ring-pink-500"}`}
+                                className={`overflow-hidden rounded-full ring-3 ${selectedUser.gender === "male" ? "ring-blue-500" : selectedUser.gender === "female" ? "ring-pink-500" : "ring-gray-500"}`}
                             >
                                 {selectedUser.avatar ? (
                                     <img
@@ -142,11 +135,14 @@ const ConversationView = ({ onOpenSidebar }) => {
                                 <h2 className="font-semibold text-gray-900">
                                     {selectedUser.fullName}{" "}
                                 </h2>
+                                {selectedUser.age && (
+                                    
                                 <span
-                                    className={`w-8 font-semibold text-sm flex justify-center items-center rounded-full p-1 text-white ${selectedUser.gender === "male" ? "bg-blue-400" : "bg-pink-400"}`}
+                                    className={`flex w-8 items-center justify-center rounded-full p-1 text-sm font-semibold text-white ${selectedUser.gender === "male" ? "bg-blue-400" : "bg-pink-400"}`}
                                 >
-                                    {selectedUser.age} 
+                                    {selectedUser.age}
                                 </span>
+                                )}
                             </div>
                             <p className="text-sm text-gray-500">
                                 {onlineUsers.includes(selectedUser.id)

@@ -2,6 +2,7 @@ import bcrypt from 'bcryptjs';
 import User from '../models/user.model.js';
 import { userResource } from '../resources/user.resource.js';
 import { generateToken } from '../utils/generateToken.js';
+import { io } from '../lib/socket.js';
 
 export const signup = async (req, res) => {
     const { fullName, email, password, gender, age, country } = req.body;
@@ -33,6 +34,9 @@ export const signup = async (req, res) => {
         // generate token and save user
         generateToken(newUser._id, res);
         await newUser.save();
+
+        // Emit new user event
+        io.emit('new-user', userResource(newUser));
 
         // send response
         res.status(201).json({

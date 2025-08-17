@@ -18,21 +18,9 @@ const ChatPage = () => {
     const subscribeToMessages = useChatStore(
         (state) => state.subscribeToMessages,
     );
-    const unsubscribeFromMessages = useChatStore(
-        (state) => state.unsubscribeFromMessages,
-    );
     useEffect(() => {
         subscribeToMessages();
-
-        return () => {
-            unsubscribeFromMessages();
-        };
-    }, [
-        selectedUser?.id,
-        conversation,
-        subscribeToMessages,
-        unsubscribeFromMessages,
-    ]);
+    }, []);
 
     return (
         // <div className="flex h-screen  overflow-hidden bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100">

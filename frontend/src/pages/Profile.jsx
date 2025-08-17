@@ -8,6 +8,10 @@ import { sortedCountries } from "../utils/countriesUtils";
 const Profile = () => {
     const authUser = useAuthStore((state) => state.authUser);
     const setAuthUser = useAuthStore((state) => state.setAuthUser);
+    const setToken = useAuthStore((state) => state.setToken);
+    const disconnectSocket = useAuthStore((state) => state.disconnectSocket);
+
+    // Form data
     const [formData, setFormData] = useState({
         fullName: authUser.fullName || "",
         age: authUser.age || "",
@@ -104,9 +108,23 @@ const Profile = () => {
     };
 
     // Delete account
-    const handleDeleteAccount = () => {
-        // Account deletion logic would go here
-        setShowDeleteModal(false);
+    const handleDeleteAccount = async () => {
+        setIsSubmitting((prev) => ({ ...prev, delete: true }));
+        try {
+            await axiosClient.delete("/users/me");
+            setToken(null);
+            setAuthUser(null);
+            disconnectSocket();
+            toast("Goodbye!", {
+                icon: "👋",
+            });
+            
+        } catch (error) {
+            console.error("Failed to delete account:", error);
+            toast.error("Failed to delete account, please try again");
+        } finally {
+            setIsSubmitting((prev) => ({ ...prev, delete: false }));
+        }
     };
 
     return (

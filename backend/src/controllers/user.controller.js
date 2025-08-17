@@ -1,7 +1,10 @@
 import cloudinary from '../lib/cloudinary.js';
+import Conversation from '../models/conversation.model.js';
+import Message from '../models/message.model.js';
 import User from '../models/user.model.js';
 import { userResource } from '../resources/user.resource.js';
 import { userListResource } from '../resources/userList.resource.js';
+import { io } from '../lib/socket.js';
 
 export const getAuthUser = (req, res) => {
     try {
@@ -98,6 +101,42 @@ export const updateUser = async (req, res) => {
     }
 };
 
-export const deleteUser = (req, res) => {
-    // Logic to delete a user by ID
+export const deleteUser = async (req, res) => {
+    const userToDeleteId = req.user._id;
+
+    try {
+        // Clear cookie
+        res.cookie('jwt', '', {
+            maxAge: 0,
+        });
+
+        // Find conversations where the user is a participant
+        const conversations = await Conversation.find({ participants: userToDeleteId });
+
+        // Find messages associated with founded conversations
+        const messages = await Message.find({ conversation: { $in: conversations.map((c) => c._id) } });
+
+        // Delete messages
+        await Message.deleteMany({ _id: { $in: messages.map((m) => m._id) } });
+
+        // Delete conversations
+        await Conversation.deleteMany({ _id: { $in: conversations.map((c) => c._id) } });
+
+        // Delete user
+        await User.findByIdAndDelete(userToDeleteId);
+
+        // Emit 'user-deleted' event
+        io.emit('user-deleted', userToDeleteId);
+
+        res.status(200).json({
+            success: true,
+            message: 'User deleted successfully',
+        });
+    } catch (error) {
+        res.status(500).json({
+            success: false,
+            message: 'Internal server error',
+            error: error.message,
+        });
+    }
 };

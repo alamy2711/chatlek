@@ -10,6 +10,7 @@ const router = express.Router();
 router.get('/', authenticateUser, listUsers);
 router.get('/me', authenticateUser, getAuthUser);
 router.put('/me', authenticateUser, upload.single('avatar'), validateUpdateUser, validateRequest, updateUser);
+router.delete('/me', authenticateUser, deleteUser);
 router
     .route('/:id')
     .all(authenticateUser)

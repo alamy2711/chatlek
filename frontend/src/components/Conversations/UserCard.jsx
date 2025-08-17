@@ -68,8 +68,8 @@ const UserCard = ({ user, isSelected, onClick }) => {
                             />
                         </span>
                     </div>
-                    <div className="mt-1 flex justify-between items-center">
-                        <p className=" text-xs text-gray-500">
+                    <div className="mt-1 flex items-center justify-between">
+                        <p className="text-xs text-gray-500">
                             {onlineUsers.includes(user.id) ? (
                                 <span className="font-medium text-green-600">
                                     Online

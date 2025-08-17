@@ -6,6 +6,7 @@ export const isValidCountryCode = (code) => {
 };
 
 export const getCountryName = (code) => {
+    if (!code) return null;
     return countries[code.toLowerCase()] || null;
 };
 
