@@ -3,6 +3,7 @@ import { useEffect, useRef, useState } from "react";
 import { useChatStore } from "../../stores/useChatStore";
 
 // Components
+import { AnimatePresence, motion } from "framer-motion";
 import { Loader } from "lucide-react";
 import Message from "./Message";
 import MessageInput from "./MessageInput";
@@ -136,12 +137,11 @@ const ConversationView = ({ onOpenSidebar }) => {
                                     {selectedUser.fullName}{" "}
                                 </h2>
                                 {selectedUser.age && (
-                                    
-                                <span
-                                    className={`flex w-8 items-center justify-center rounded-full p-1 text-sm font-semibold text-white ${selectedUser.gender === "male" ? "bg-blue-400" : "bg-pink-400"}`}
-                                >
-                                    {selectedUser.age}
-                                </span>
+                                    <span
+                                        className={`flex w-8 items-center justify-center rounded-full p-1 text-sm font-semibold text-white ${selectedUser.gender === "male" ? "bg-blue-400" : "bg-pink-400"}`}
+                                    >
+                                        {selectedUser.age}
+                                    </span>
                                 )}
                             </div>
                             <p className="text-sm text-gray-500">
@@ -183,17 +183,26 @@ const ConversationView = ({ onOpenSidebar }) => {
             </div>
 
             {/* Messages */}
-            <div className="flex-1 space-y-4 overflow-y-auto bg-gradient-to-b from-gray-50 to-white p-4">
-                {/* {messages.map((message) => ( */}
-                {[...messages].reverse().map((message) => (
-                    <Message
-                        key={message._id}
-                        message={message}
-                        isOwn={message.sender !== selectedUser.id}
-                    />
-                ))}
-                <div ref={messagesEndRef} />
-            </div>
+            <AnimatePresence>
+                <div className="flex-1 space-y-4 overflow-y-auto bg-gradient-to-b from-gray-50 to-white p-4">
+                    {/* {messages.map((message) => ( */}
+                    {[...messages].reverse().map((message) => (
+                        <motion.div
+                            initial={{ opacity: 0, y: 30 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            exit={{ opacity: 0 }}
+                            transition={{type: "spring", stiffness: 300, damping: 15}}
+                            key={message._id}
+                        >
+                            <Message
+                                message={message}
+                                isOwn={message.sender !== selectedUser.id}
+                            />
+                        </motion.div>
+                    ))}
+                    <div ref={messagesEndRef} />
+                </div>
+            </AnimatePresence>
 
             {/* Message Input */}
             <MessageInput />

@@ -118,7 +118,6 @@ const Profile = () => {
             toast("Goodbye!", {
                 icon: "👋",
             });
-            
         } catch (error) {
             console.error("Failed to delete account:", error);
             toast.error("Failed to delete account, please try again");
@@ -131,22 +130,54 @@ const Profile = () => {
         <div className="min-h-screen bg-gray-50 px-4 py-12 sm:px-6 lg:px-8">
             <div className="mx-auto max-w-4xl">
                 {/* Profile Header */}
-                <div className="mb-12 text-center">
+                <motion.div
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{
+                        type: "spring",
+                        stiffness: 300,
+                        damping: 15,
+                        duration: 0.3,
+                    }}
+                    className="mb-12 text-center"
+                >
                     <h1 className="text-3xl font-bold text-gray-900">
                         Profile Settings
                     </h1>
                     <p className="mt-2 text-gray-600">
                         Manage your personal information and account settings
                     </p>
-                </div>
+                </motion.div>
 
                 {/* Profile Card */}
-                <div className="overflow-hidden rounded-lg bg-white shadow-xl">
+                <motion.div
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{
+                        type: "spring",
+                        stiffness: 300,
+                        damping: 15,
+                        duration: 0.3,
+                        delay: 0.2,
+                    }}
+                    className="overflow-hidden rounded-lg bg-white shadow-xl"
+                >
                     {/* Profile Picture Section */}
                     <div className="relative flex h-48 items-center justify-center bg-gradient-to-r from-blue-500 to-indigo-600">
                         <div className="absolute -bottom-16 left-1/2 -translate-x-1/2 transform">
                             <div className="group relative">
-                                <div className="h-32 w-32 overflow-hidden rounded-full border-4 border-white bg-gray-200 shadow-lg">
+                                <motion.div
+                                    initial={{ opacity: 0, scale: 0.5 }}
+                                    animate={{ opacity: 1, scale: 1 }}
+                                    transition={{
+                                        type: "spring",
+                                        stiffness: 300,
+                                        damping: 15,
+                                        duration: 0.3,
+                                        delay: 0.4,
+                                    }}
+                                    className="h-32 w-32 overflow-hidden rounded-full border-4 border-white bg-gray-200 shadow-lg"
+                                >
                                     {tempPicture || authUser.avatar ? (
                                         <>
                                             <img
@@ -184,7 +215,7 @@ const Profile = () => {
                                             {authUser.fullName.charAt(0)}
                                         </div>
                                     )}
-                                </div>
+                                </motion.div>
 
                                 {isEditing && (
                                     <>
@@ -452,7 +483,7 @@ const Profile = () => {
                             </button>
                         </div>
                     </div>
-                </div>
+                </motion.div>
             </div>
 
             {/* Delete Account Modal */}

@@ -98,7 +98,6 @@ export const useChatStore = create((set, get) => ({
     },
 
     subscribeToMessages: () => {
-        
         const authUser = useAuthStore.getState().authUser;
         const authSocket = useAuthStore.getState().authSocket;
 
@@ -134,4 +133,14 @@ export const useChatStore = create((set, get) => ({
         authSocket.off("new-message");
         set((state) => ({ messages: [] }));
     },
+
+    subscribeToTyping: () => {
+        const authSocket = useAuthStore.getState().authSocket;
+        
+        if (!authSocket) return;
+
+        authSocket.on("typing", () => {
+            
+        });
+    }
 }));

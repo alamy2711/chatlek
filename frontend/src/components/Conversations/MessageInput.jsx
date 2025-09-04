@@ -1,15 +1,55 @@
+import { motion } from "framer-motion";
 import { Image, Send } from "lucide-react";
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
+import { useAuthStore } from "../../stores/useAuthStore";
 import { useChatStore } from "../../stores/useChatStore";
 
 const MessageInput = () => {
     const sendMessage = useChatStore((state) => state.sendMessage);
+    const authSocket = useAuthStore((state) => state.authSocket);
 
     //
     const [message, setMessage] = useState("");
     const [selectedImage, setSelectedImage] = useState(null);
     const fileInputRef = useRef(null);
     const [isSending, setIsSending] = useState(false);
+    const [isTyping, setIsTyping] = useState(false);
+    const typingTimeoutRef = useRef(null);
+
+    useEffect(() => {
+        if (!authSocket) return;
+
+        authSocket.on("typing", (senderId) => {
+            if (senderId === useChatStore.getState().selectedUser.id)
+                setIsTyping(true);
+        });
+
+        authSocket.on("stop-typing", (senderId) => {
+            if (senderId === useChatStore.getState().selectedUser.id)
+                setIsTyping(false);
+        });
+
+        return () => {
+            authSocket.off("typing");
+            authSocket.off("stop-typing");
+        };
+    }, [authSocket]);
+
+    const handleTyping = () => {
+        authSocket.emit("typing", {
+            senderId: useAuthStore.getState().authUser.id,
+            receiverId: useChatStore.getState().selectedUser.id,
+        });
+
+        if (typingTimeoutRef.current) clearTimeout(typingTimeoutRef.current);
+
+        typingTimeoutRef.current = setTimeout(() => {
+            authSocket.emit("stop-typing", {
+                senderId: useAuthStore.getState().authUser.id,
+                receiverId: useChatStore.getState().selectedUser.id,
+            });
+        }, 1500);
+    };
 
     const handleSend = async () => {
         if (message.trim() || selectedImage) {
@@ -75,6 +115,8 @@ const MessageInput = () => {
                 </div>
             )}
 
+            {isTyping && <TypingIndicator />}
+
             <div className="flex items-center space-x-2">
                 <div className="flex space-x-1">
                     <input
@@ -95,14 +137,19 @@ const MessageInput = () => {
 
                 <textarea
                     value={message}
-                    onChange={(e) => setMessage(e.target.value)}
+                    // onChange={(e) => setMessage(e.target.value)}
+                    onChange={(e) => {
+                        handleTyping();
+                        setMessage(e.target.value);
+                    }}
                     onKeyPress={handleKeyPress}
                     placeholder="Type your message..."
                     className="max-h-32 min-h-[44px] w-full resize-none overflow-y-auto rounded-2xl border border-gray-300 px-4 py-2 focus:border-transparent focus:ring-2 focus:ring-blue-500 focus:outline-none"
                     rows={1}
                 />
 
-                <button
+                <motion.button
+                    whileTap={{ scale: 0.1}}
                     onClick={handleSend}
                     disabled={(!message.trim() && !selectedImage) || isSending}
                     className={`rounded-full p-2 transition-all duration-200 ${
@@ -112,10 +159,47 @@ const MessageInput = () => {
                     }`}
                 >
                     <Send size={20} />
-                </button>
+                </motion.button>
             </div>
         </div>
     );
 };
+
+function TypingIndicator() {
+    return (
+        <div className="mb-2 ml-2 flex items-center space-x-1">
+            <motion.span
+                className="size-1.5 rounded-full bg-blue-500"
+                animate={{ y: [0, -4, 0], scale: [1, 1.2, 1] }}
+                transition={{
+                    duration: 0.6,
+                    repeat: Infinity,
+                    repeatType: "mirror",
+                }}
+            />
+            <motion.span
+                className="size-1.5 rounded-full bg-blue-500"
+                animate={{ y: [0, -4, 0], scale: [1, 1.2, 1] }}
+                transition={{
+                    duration: 0.6,
+                    repeat: Infinity,
+                    repeatType: "mirror",
+                    delay: 0.2,
+                }}
+            />
+            <motion.span
+                className="size-1.5 rounded-full bg-blue-500"
+                animate={{ y: [0, -4, 0], scale: [1, 1.2, 1] }}
+                transition={{
+                    duration: 0.6,
+                    repeat: Infinity,
+                    repeatType: "mirror",
+                    delay: 0.4,
+                }}
+            />
+            <span className="ml-2 text-sm text-gray-600">Typing...</span>
+        </div>
+    );
+}
 
 export default MessageInput;

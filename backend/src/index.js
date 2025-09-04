@@ -24,7 +24,8 @@ app.use(express.urlencoded({ limit: '10mb', extended: true }));
 app.use(cookieParser());
 app.use(
     cors({
-        origin: process.env.CLIENT_URL || 'http://localhost:3001',
+        // origin: process.env.CLIENT_URL || 'http://localhost:3001',
+        origin: true,
         credentials: true,
     })
 );

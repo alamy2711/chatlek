@@ -4,6 +4,7 @@ import { useAuthStore } from "../../stores/useAuthStore";
 import { useChatStore } from "../../stores/useChatStore";
 
 // Components
+import { AnimatePresence, motion } from "framer-motion";
 import { Loader } from "lucide-react";
 import UserCard from "./UserCard";
 
@@ -118,19 +119,31 @@ const UsersList = ({ onCloseSidebar }) => {
                                 Online ({onlineUsers.length})
                             </h3>
                         </div>
-                        {onlineUsers.map((user) => (
-                            <UserCard
-                                key={user.id}
-                                user={user}
-                                isSelected={selectedUser?.id === user.id}
-                                onClick={() => {
-                                    setSelectedUser(user);
-                                    if (selectedUser?.id !== user.id)
-                                        startConversation(user.id);
-                                    onCloseSidebar();
-                                }}
-                            />
-                        ))}
+                        <AnimatePresence>
+                            {onlineUsers.map((user) => (
+                                <motion.div
+                                    key={user.id}
+                                    // initial={{ opacity: 1, x: -50 }}
+                                    animate={{ opacity: 1, x: 0 }}
+                                    exit={{ opacity: 0, x: -50 }}
+                                    transition={{ duration: 0.5 }}
+                                    whileTap={{ x: 15 }}
+                                >
+                                    <UserCard
+                                        user={user}
+                                        isSelected={
+                                            selectedUser?.id === user.id
+                                        }
+                                        onClick={() => {
+                                            setSelectedUser(user);
+                                            if (selectedUser?.id !== user.id)
+                                                startConversation(user.id);
+                                            onCloseSidebar();
+                                        }}
+                                    />
+                                </motion.div>
+                            ))}
+                        </AnimatePresence>
                     </div>
                 )}
 

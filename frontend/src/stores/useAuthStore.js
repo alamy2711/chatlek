@@ -10,7 +10,7 @@ export const useAuthStore = create((set, get) => ({
     authSocket: null,
 
     // Loading states
-    authUserLoading: false,
+    authUserLoading: true,
     logoutLoading: false,
 
     // Setters

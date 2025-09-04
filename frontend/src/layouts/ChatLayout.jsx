@@ -15,6 +15,7 @@ export default function ChatLayout() {
     }, [fetchAuthUser]);
 
     if (!token || (!authUserLoading && !authUser)) {
+        alert(authUser);
         return <Navigate to="/signup" />;
     }
     if (authUserLoading && !authUser) {

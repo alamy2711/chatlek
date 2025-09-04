@@ -25,7 +25,7 @@ const UserCard = ({ user, isSelected, onClick }) => {
         <div
             onClick={onClick}
             className={`cursor-pointer border-b border-gray-100 p-4 transition-all duration-200 hover:bg-gray-50 ${
-                isSelected ? "border-r-4 border-r-blue-600 bg-blue-50" : ""
+                isSelected ? "border-r-4  border-r-blue-600 bg-blue-50" : ""
             }`}
         >
             <div className="flex items-center space-x-3">

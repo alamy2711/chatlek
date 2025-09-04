@@ -1,8 +1,31 @@
 import { AnimatePresence, motion } from "framer-motion";
-import { LogOut, Settings, UserRound } from "lucide-react";
+import { LogOut, MessageSquareText, Settings, UserRound } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import { Link } from "react-router-dom";
 import { useAuthStore } from "../stores/useAuthStore";
+
+const dropdownItems = [
+    {
+        icon: <UserRound className="mr-2 h-4 w-4" />,
+        name: "Profile",
+        href: "/profile",
+    },
+    {
+        icon: <MessageSquareText className="mr-2 h-4 w-4" />,
+        name: "Chat",
+        href: "/conversations",
+    },
+    {
+        icon: <Settings className="mr-2 h-4 w-4" />,
+        name: "Settings",
+        href: "/settings",
+    },
+    {
+        icon: <LogOut className="mr-2 h-4 w-4" />,
+        name: "Logout",
+        href: "/logout",
+    },
+];
 
 const Header = () => {
     const authUser = useAuthStore((state) => state.authUser);
@@ -137,47 +160,42 @@ const Header = () => {
                                 <AnimatePresence>
                                     {isDropdownOpen && (
                                         <motion.div
-                                            initial={{ opacity: 0, y: -10 }}
-                                            animate={{ opacity: 1, y: 0 }}
-                                            exit={{ opacity: 0, y: -10 }}
-                                            transition={{ duration: 0.2 }}
+                                            initial={{ opacity: 0, y: -15 }}
+                                            animate={{
+                                                opacity: 1,
+                                                y: 0,
+                                                transition: {
+                                                    type: "spring",
+                                                    stiffness: 500,
+                                                    damping: 15,
+                                                },
+                                            }}
+                                            exit={{
+                                                opacity: 0,
+                                                y: -15,
+                                                transition: {
+                                                    duration: 0.2,
+                                                    ease: "easeInOut",
+                                                },
+                                            }}
                                             className="ring-opacity-5 absolute right-0 mt-2 w-48 origin-top-right rounded-md bg-white shadow-lg ring-1 ring-gray-200 focus:outline-none"
                                         >
                                             <div className="py-1">
-                                                {/* Profile, Settings, Logout links with lucide icons */}
-                                                <Link
-                                                    to="/profile"
-                                                    className="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
-                                                >
-                                                    {/* Profile icon with lucide icon */}
-                                                    <UserRound
-                                                        icon="user"
-                                                        className="mr-2 h-4 w-4"
-                                                    />
-                                                    Profile
-                                                </Link>
-                                                <Link
-                                                    to="/settings"
-                                                    className="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
-                                                >
-                                                    {/* Profile icon with lucide icon */}
-                                                    <Settings
-                                                        icon="user"
-                                                        className="mr-2 h-4 w-4"
-                                                    />
-                                                    Settings
-                                                </Link>
-                                                <Link
-                                                    className="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
-                                                    onClick={logout}
-                                                >
-                                                    {/* Profile icon with lucide icon */}
-                                                    <LogOut
-                                                        icon="user"
-                                                        className="mr-2 h-4 w-4"
-                                                    />
-                                                    Logout
-                                                </Link>
+                                                {dropdownItems.map((item) => (
+                                                    <Link
+                                                        onClick={() =>
+                                                            setIsDropdownOpen(
+                                                                false,
+                                                            )
+                                                        }
+                                                        key={item.name}
+                                                        to={item.href}
+                                                        className="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                                                    >
+                                                        {item.icon}
+                                                        {item.name}
+                                                    </Link>
+                                                ))}
                                             </div>
                                         </motion.div>
                                     )}

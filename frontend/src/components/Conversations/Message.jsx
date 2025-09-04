@@ -1,10 +1,7 @@
-import React from "react";
 import { useChatStore } from "../../stores/useChatStore";
 
 const Message = ({ message, isOwn }) => {
     const selectedUser = useChatStore((state) => state.selectedUser);
-
-
 
     //
     const formatTime = (date) => {
@@ -40,7 +37,7 @@ const Message = ({ message, isOwn }) => {
                                 className="h-8 w-8 flex-shrink-0 rounded-full object-cover"
                             />
                         ) : (
-                            <div className="flex h-8 w-8 items-center justify-center rounded-full bg-indigo-100 text-md font-bold text-indigo-600">
+                            <div className="text-md flex h-8 w-8 items-center justify-center rounded-full bg-indigo-100 font-bold text-indigo-600">
                                 {selectedUser.fullName.charAt(0)}
                             </div>
                         )}
@@ -48,7 +45,7 @@ const Message = ({ message, isOwn }) => {
                 )}
 
                 <div
-                    className={`rounded-2xl px-4 py-2 ${
+                    className={`rounded-2xl px-4 py-2 max-w-50 md:max-w-100   ${
                         isOwn
                             ? "rounded-br-sm bg-gradient-to-r from-blue-600 to-indigo-600 text-white"
                             : "rounded-bl-sm border border-gray-200 bg-white text-gray-800 shadow-sm"

@@ -1,12 +1,13 @@
 import { Server } from 'socket.io';
-import { addUser, getOnlineUsers, removeUser } from '../sockets/userSocketMap.js';
+import { addUser, getOnlineUsers, getReceiverSocketId, removeUser } from '../sockets/userSocketMap.js';
 
 let io;
 
 const initSocket = (server) => {
     io = new Server(server, {
         cors: {
-            origin: [process.env.CLIENT_URL || 'http://localhost:3001'],
+            // origin: [process.env.CLIENT_URL || 'http://localhost:3001'],
+            origin: true,
             credentials: true,
         },
     });
@@ -24,6 +25,18 @@ const initSocket = (server) => {
         // Add the user to the map and emit online users
         addUser(userId, socket.id);
         io.emit('online-users', getOnlineUsers());
+
+        // Typing event
+        socket.on('typing', ({ senderId, receiverId }) => {
+            const receiverSocketId = getReceiverSocketId(receiverId);
+            io.to(receiverSocketId).emit('typing', senderId);
+        });
+
+        // Stop typing event
+        socket.on('stop-typing', ({ senderId, receiverId }) => {
+            const receiverSocketId = getReceiverSocketId(receiverId);
+            io.to(receiverSocketId).emit('stop-typing', senderId);
+        });
 
         // On disconnect, remove the user from the map and emit online users
         socket.on('disconnect', () => {
